@@ -1,0 +1,18 @@
+SET linesize 1000
+CREATE VIEW CustomerSummary AS 
+SELECT 
+    Branch.BranchID,
+    SUM(CASE WHEN Customer.Gender = 'M' THEN 1 ELSE 0 END) AS Total_Male_Cust,
+    SUM(CASE WHEN Customer.Gender = 'F' THEN 1 ELSE 0 END) AS Total_Female_Cust,
+    ROUND(AVG(CustomerFeedback.FoodRating), 2) AS Food_Rating,
+    ROUND(AVG(CustomerFeedback.EnvironmentRating), 2) AS Environment_Rating,
+    ROUND(AVG(CustomerFeedback.ServiceRating), 2) AS Service_Rating,
+    ROUND(AVG(CustomerFeedback.PriceRating), 2) AS Price_Rating 
+FROM 
+    Branch 
+JOIN CustomerFeedback ON Branch.BranchID = CustomerFeedback.BranchID JOIN Customer ON CustomerFeedback.CustID = Customer.CustID 
+GROUP BY 
+    Branch.BranchID;
+SET LINESIZE 120
+SELECT * FROM CustomerSummary ORDER BY BranchID ASC;
+DROP VIEW CustomerSummary;

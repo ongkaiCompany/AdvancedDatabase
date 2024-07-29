@@ -1,0 +1,75 @@
+CREATE OR REPLACE PROCEDURE GenQuarterlyReport IS
+
+    -- Variables to hold data for each branch and quarter
+    CurrentBranchID branch.BranchID%TYPE;
+    QuarterStart DATE := TO_DATE('08/04/2022', 'DD/MM/YYYY');
+    QuarterEnd DATE;
+    AvgFoodRating NUMBER(5,2);
+    AvgEnvironmentRating NUMBER(5,2);
+    AvgServiceRating NUMBER(5,2);
+    AvgPriceRating NUMBER(5,2);
+    TotalCustomers NUMBER;
+
+    -- Cursor to loop through each branch
+    CURSOR cur IS SELECT BranchID FROM Branch;
+
+BEGIN
+
+    -- Loop through the branches using the cursor
+    FOR rec IN cur LOOP
+
+        CurrentBranchID := rec.BranchID;
+
+        -- Display header for each branch
+        DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+        DBMS_OUTPUT.PUT_LINE('Branch ID: ' || CurrentBranchID);
+        DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+
+        -- Reset the QuarterStart for each branch
+        QuarterStart := TO_DATE('08/04/2022', 'DD/MM/YYYY');
+
+        -- Loop through each quarter
+        WHILE QuarterStart < TO_DATE('08/04/2023', 'DD/MM/YYYY') LOOP
+
+            QuarterEnd := ADD_MONTHS(QuarterStart, 3);
+
+            -- Calculate average ratings and total customers for the current branch and quarter
+            SELECT 
+                ROUND(AVG(FoodRating), 2),
+                ROUND(AVG(EnvironmentRating), 2),
+                ROUND(AVG(ServiceRating), 2),
+                ROUND(AVG(PriceRating), 2),
+                COUNT(DISTINCT CustID)
+            INTO 
+                AvgFoodRating,
+                AvgEnvironmentRating,
+                AvgServiceRating,
+                AvgPriceRating,
+                TotalCustomers
+            FROM 
+                CustomerFeedback
+            WHERE 
+                BranchID = CurrentBranchID AND
+                FeedbackDate BETWEEN QuarterStart AND QuarterEnd;
+
+            -- Output the data for each quarter
+            DBMS_OUTPUT.PUT_LINE('Quarter Start: ' || TO_CHAR(QuarterStart, 'DD/MM/YYYY'));
+            DBMS_OUTPUT.PUT_LINE('Food Rating       : ' || AvgFoodRating);
+            DBMS_OUTPUT.PUT_LINE('Environment Rating: ' || AvgEnvironmentRating);
+            DBMS_OUTPUT.PUT_LINE('Service Rating    : ' || AvgServiceRating);
+            DBMS_OUTPUT.PUT_LINE('Price Rating      : ' || AvgPriceRating);
+            DBMS_OUTPUT.PUT_LINE('Total Customers   : ' || TotalCustomers);
+            DBMS_OUTPUT.PUT_LINE('--------------------------------------------------');
+
+            -- Move to the next quarter
+            QuarterStart := QuarterEnd;
+
+        END LOOP;
+
+    END LOOP;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END GenQuarterlyReport;
+/

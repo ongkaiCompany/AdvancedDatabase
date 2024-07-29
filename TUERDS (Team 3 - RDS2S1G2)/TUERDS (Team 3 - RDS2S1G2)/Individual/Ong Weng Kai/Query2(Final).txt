@@ -1,0 +1,17 @@
+ACCEPT IngredientCode CHAR PROMPT 'Please enter Ingredient Code > '
+
+SELECT 
+    Supplier.SupplierName, 
+    Supplier.ContactNo, 
+    AVG(PurchaseOrder.Psubtotal / PurchaseOrder.IngredientQty) AS Avg_Unit_Price,
+    Ingredient.IngName AS IngredientName
+FROM 
+    Supplier 
+JOIN PurchaseOrder ON Supplier.SupplierID = PurchaseOrder.SupplierID 
+JOIN Ingredient ON Ingredient.IngID = PurchaseOrder.IngID
+WHERE 
+    Ingredient.IngID = '&IngredientCode'
+GROUP BY 
+    Supplier.SupplierName, 
+    Supplier.ContactNo, 
+    Ingredient.IngName;

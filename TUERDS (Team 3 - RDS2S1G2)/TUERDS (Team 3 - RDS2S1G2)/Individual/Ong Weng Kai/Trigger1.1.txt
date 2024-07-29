@@ -1,0 +1,14 @@
+CREATE OR REPLACE TRIGGER trg_notify_bad_feedback
+    AFTER INSERT OR UPDATE ON CustomerFeedback
+    FOR EACH ROW
+    BEGIN
+        -- Check if any of the ratings is below 2.5
+        IF :NEW.FoodRating < 2.5 OR
+           :NEW.EnvironmentRating < 2.5 OR
+           :NEW.ServiceRating < 2.5 OR
+           :NEW.PriceRating < 2.5 THEN
+ DBMS_OUTPUT.PUT_LINE('================================================');
+           DBMS_OUTPUT.PUT_LINE('Alert! Bad feedback received with FeedbackID: ' || :NEW.FeedbackID);
+       END IF;
+   END;
+   /

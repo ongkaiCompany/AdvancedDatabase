@@ -1,0 +1,77 @@
+CREATE OR REPLACE PROCEDURE EmployeeReport IS
+    v_genderDesc VARCHAR2(10);
+    v_count NUMBER;
+    v_jobTitle VARCHAR2(20);
+    v_jobTypeDesc VARCHAR2(20);
+
+    CURSOR gender_cursor IS
+        SELECT 
+            CASE 
+                WHEN Gender = 'M' THEN 'Male'
+                WHEN Gender = 'F' THEN 'Female'
+            END AS GenderDesc,
+            COUNT(*) as TotalCount
+        FROM Employee
+        GROUP BY Gender;
+
+    CURSOR jobType_cursor IS
+        SELECT 
+            CASE 
+                WHEN JobType = 'PT' THEN 'PartTime'
+                WHEN JobType = 'FT' THEN 'FullTime'
+            END AS JobTypeDesc,
+            COUNT(*) as TotalCount
+        FROM Employee
+        GROUP BY JobType;
+
+    CURSOR jobID_cursor IS
+        SELECT 
+            CASE 
+                WHEN JobID = 'SUPR' THEN 'Supervisor'
+                WHEN JobID = 'CLER' THEN 'Cleaner'
+                WHEN JobID = 'MAGR' THEN 'Manager'
+                WHEN JobID = 'CASR' THEN 'Cashier'
+                WHEN JobID = 'CHEF' THEN 'Chef'
+            END AS JobTitleDesc,
+            COUNT(*) as TotalCount
+        FROM Employee
+        GROUP BY JobID;
+
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Count of Male and Female Employees:');
+    DBMS_OUTPUT.PUT_LINE('----------------------------------');
+    OPEN gender_cursor;
+    LOOP
+        FETCH gender_cursor INTO v_genderDesc, v_count;
+        EXIT WHEN gender_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Gender: ' || v_genderDesc || ' Count: ' || v_count);
+    END LOOP;
+    CLOSE gender_cursor;
+
+    DBMS_OUTPUT.PUT_LINE('');
+    DBMS_OUTPUT.PUT_LINE('Count of Employees for Each JobType:');
+    DBMS_OUTPUT.PUT_LINE('-----------------------------------');
+    OPEN jobType_cursor;
+    LOOP
+        FETCH jobType_cursor INTO v_jobTypeDesc, v_count;
+        EXIT WHEN jobType_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('JobType: ' || v_jobTypeDesc || ' Count: ' || v_count);
+    END LOOP;
+    CLOSE jobType_cursor;
+
+    DBMS_OUTPUT.PUT_LINE('');
+    DBMS_OUTPUT.PUT_LINE('Count of Employees for Each JobID:');
+    DBMS_OUTPUT.PUT_LINE('---------------------------------');
+    OPEN jobID_cursor;
+    LOOP
+        FETCH jobID_cursor INTO v_jobTitle, v_count;
+        EXIT WHEN jobID_cursor%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('JobID: ' || v_jobTitle || ' Count: ' || v_count);
+    END LOOP;
+    CLOSE jobID_cursor;
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END EmployeeReport;
+/

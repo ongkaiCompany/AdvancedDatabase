@@ -1,0 +1,73 @@
+SET linesize 1000
+CREATE OR REPLACE PROCEDURE FeedbackByRating(
+    p_category IN VARCHAR2,
+    p_exact_rating IN NUMBER
+) IS
+BEGIN
+    -- Header
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------------------------------------------');
+    DBMS_OUTPUT.PUT_LINE(RPAD('BranchID', 10) || RPAD('FeedbackID', 15) || RPAD('Rating', 10) || 'Review');
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------------------------------------------');
+
+    -- Check which category is selected and fetch feedback based on the exact rating
+    CASE p_category
+        WHEN 'Food' THEN
+            FOR rec IN (SELECT * FROM CustomerFeedback 
+                        WHERE FoodRating = p_exact_rating
+                        ORDER BY BranchID) LOOP
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD(rec.BranchID, 10) || 
+                    RPAD(rec.FeedbackID, 15) || 
+                    RPAD(rec.FoodRating, 10) || 
+                    rec.Review
+                );
+            END LOOP;
+
+        WHEN 'Environment' THEN
+            FOR rec IN (SELECT * FROM CustomerFeedback 
+                        WHERE EnvironmentRating = p_exact_rating
+                        ORDER BY BranchID) LOOP
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD(rec.BranchID, 10) || 
+                    RPAD(rec.FeedbackID, 15) || 
+                    RPAD(rec.EnvironmentRating, 10) || 
+                    rec.Review
+                );
+            END LOOP;
+
+        WHEN 'Service' THEN
+            FOR rec IN (SELECT * FROM CustomerFeedback 
+                        WHERE ServiceRating = p_exact_rating
+                        ORDER BY BranchID) LOOP
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD(rec.BranchID, 10) || 
+                    RPAD(rec.FeedbackID, 15) || 
+                    RPAD(rec.ServiceRating, 10) || 
+                    rec.Review
+                );
+            END LOOP;
+
+        WHEN 'Price' THEN
+            FOR rec IN (SELECT * FROM CustomerFeedback 
+                        WHERE PriceRating = p_exact_rating
+                        ORDER BY BranchID) LOOP
+                DBMS_OUTPUT.PUT_LINE(
+                    RPAD(rec.BranchID, 10) || 
+                    RPAD(rec.FeedbackID, 15) || 
+                    RPAD(rec.PriceRating, 10) || 
+                    rec.Review
+                );
+            END LOOP;
+
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Invalid category provided.');
+    END CASE;
+
+    -- Footer
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------------------------------------------------------------');
+
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END FeedbackByRating;
+/

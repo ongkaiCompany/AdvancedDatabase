@@ -1,0 +1,18 @@
+CREATE OR REPLACE TRIGGER trg_new_menu_item
+AFTER INSERT ON Menu
+FOR EACH ROW
+DECLARE
+    v_discount_count NUMBER;
+BEGIN
+    SELECT COUNT(*)
+    INTO v_discount_count
+    FROM MenuDisc
+    WHERE MenuID = :NEW.MenuID;
+
+    IF v_discount_count = 0 THEN
+DBMS_OUTPUT.PUT_LINE('============================================================= ');
+DBMS_OUTPUT.PUT_LINE('ALERT: The new menu item "' || :NEW.MenuDesc || '" (MenuID: ' || :NEW.MenuID || ') does not have an associated promotional discount. Consider adding one.');
+    END IF;
+END trg_new_menu_item;
+
+/
